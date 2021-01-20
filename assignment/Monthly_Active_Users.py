@@ -19,7 +19,11 @@ dbname = "prod"
 cursor = get_Redshift_connection(hostname, redshift_user, redshift_pass, port, dbname)
 
 
-sql = "SELECT to_char(ts::date, 'YYYY-MM') AS period, count(userid) as count_result FROM raw_data.session_timestamp AS A INNER JOIN raw_data.user_session_channel AS B on A.sessionid = B.sessionid GROUP BY period;"
+sql = """
+SELECT to_char(ts::date, 'YYYY-MM') AS period, count(DISTINCT userid) as count_result
+FROM raw_data.session_timestamp AS A
+INNER JOIN raw_data.user_session_channel AS B on A.sessionid = B.sessionid
+GROUP BY period;"""
 
 cursor.execute(sql)
 df = pd.DataFrame(cursor.fetchall())
